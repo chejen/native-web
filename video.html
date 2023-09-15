@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Video</title>
+    <meta name="viewport" content="width=device-width" />
+  </head>
+  <body>
+    <button id="btn" style="padding: 20px; margin: 20px; font-size: 24px">
+      Unmute All Videos</button
+    ><br />
+    <div id="div1">
+      <video
+        id="vid1"
+        width="360"
+        muted
+        playsinline
+        controls
+        autoplay
+        src="https://media.w3.org/2010/05/sintel/trailer.mp4"
+      ></video>
+    </div>
+    <div id="div2">
+      <video
+        id="vid2"
+        width="360"
+        muted
+        playsinline
+        controls
+        autoplay
+        src="https://www.w3schools.com/html/movie.mp4"
+      ></video>
+    </div>
+    <div id="div3"></div>
+    <div id="div4"></div>
+    <div id="footer" style="height: 70px"></div>
+    <script>
+      const vid4 = document.createElement('video');
+      vid4.id = 'vid4';
+      /*vid4.width = 360;
+      vid4.muted = true;
+      vid4.playsInline = true;
+      vid4.controls = true;*/
+
+      let isMuted = true;
+      const url = new URL(window.location.href);
+      if (url.searchParams.get('vh')) {
+        div1.style = `height: ${url.searchParams.get('vh')}vh`;
+      }
+      btn.addEventListener('click', () => {
+        vid1.muted = false;
+        vid2.muted = false;
+        // vid3 doesn't exist yet
+        vid4.muted = false;
+        isMuted = false;
+      });
+      /*vid2.addEventListener('play', () => {
+        setTimeout(() => {
+          vid2.muted = false;
+        }, 5000);
+        //console.log('play');
+      });*/
+
+      let observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              /*let elem = entry.target;
+
+            if (entry.intersectionRatio >= 0.75) {
+              intersectionCounter++;
+            }*/
+              if (entry.target.id === 'div2') {
+                // [Note] 單靠 autoplay 的話，iOS 15 前播不起來，16 則可以
+                entry.target.querySelector('#vid2').play();
+              }
+              if (
+                entry.target.id === 'div3' &&
+                !entry.target.querySelector('#vid3')
+              ) {
+                // [Note] unmute 後才 create 的 video 不能播放 (即使呼叫 play())
+                // [Note] unmute 當下如果也先針對一個 detached video 作 unmute，這樣事後才 append 可以播得起來，但會讓其它影片停下來
+
+                const v = document.createElement('video');
+                v.id = 'vid3';
+                v.width = 360;
+                v.muted = isMuted;
+                v.playsInline = true;
+                v.controls = true;
+                // v.autoplay = true;
+                v.src = 'https://www.w3schools.com/html/mov_bbb.mp4';
+                entry.target.appendChild(v);
+                v.play().then(
+                  (res) => {
+                    console.log({ res });
+                    footer.style.backgroundColor = 'green';
+                  },
+                  (err) => {
+                    console.log({ err });
+                    footer.style.backgroundColor = 'red';
+                    setTimeout(() => {
+                      v.play();
+                    }, 1000);
+                    // v.play();
+                  }
+                );
+              }
+              if (
+                entry.target.id === 'div4' &&
+                !entry.target.querySelector('#vid4')
+              ) {
+                vid4.width = 360;
+                vid4.muted = isMuted;
+                vid4.playsInline = true;
+                vid4.controls = true;
+                vid4.src = 'https://www.javatpoint.com/oprweb/movie.mp4';
+                entry.target.appendChild(vid4);
+                vid4.play();
+              }
+            } else {
+              console.log('No');
+            }
+          });
+        },
+        (options = {
+          //root: document.querySelector("#scrollArea"),
+          rootMargin: '0px',
+          threshold: 1.0,
+        })
+      );
+      //let target = document.getElementById('vid2');
+      observer.observe(document.getElementById('div2'));
+      observer.observe(document.getElementById('div3'));
+      observer.observe(document.getElementById('div4'));
+    </script>
+  </body>
+</html>
