@@ -1,0 +1,32 @@
+html, body {
+  margin: 0;
+}
+* {
+  box-sizing: border-box;
+}
+.base {
+  height: 300px;
+}
+.b-red {
+  border: 1px solid red;
+}
+.b-orange {
+  border: 1px solid orange;
+}
+.b-green {
+  border: 1px solid green;
+}
+.b-blue {
+  border: 1px solid blue;
+}
+.m-20 {
+  margin: 20px;
+}
+.upper-half {
+  background-color: lightgray;
+  height: 150px;
+}
+.lower-half {
+  padding: 0 20px;
+  height: 150px;
+}
