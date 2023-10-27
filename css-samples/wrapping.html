@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Wrapping</title>
+    <meta name="viewport" content="width=device-width" />
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+      }
+      h3 {
+        color: palevioletred;
+        text-align: center;
+        margin: 30px 0 5px;
+      }
+      .container {
+        width: 300px;
+        height: 600px;
+        padding: 0 10px;
+        background-color: #ccc;
+      }
+      .ellipsis {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .break-word {
+        overflow-wrap: break-word;
+      }
+      .currency {
+        color: greenyellow;
+      }
+      .no-wrap {
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h3>Long content with spaces</h3>
+      <div class="ellipsis">
+        long text long text long text long text long text long text long text long text long text long text long text long text long text long text
+      </div>
+
+      <h3>Long content without spaces</h3>
+      <div class="ellipsis break-word">
+        longtextlongtextlongtextlongtextlongtextlongtextlongtextlongtextlongtextlongtextlongtextlongtextlongtextlongtext
+      </div>
+
+      <h3>Not tying icon and numbers together</h3>
+      <div class="ellipsis break-word">
+        long text long text long text long text <span class="currency"><img src="/images/dollar-sign-bag.svg" width="12"> 88,888</span> long text long text long text long text long text long text long text long text long text
+      </div>
+
+      <h3>Tying icon and numbers together</h3>
+      <div class="ellipsis break-word">
+        long text long text long text long text <span class="currency no-wrap"><img src="/images/dollar-sign-bag.svg" width="12"> 88,888</span> long text long text long text long text long text long text long text long text long text
+      </div>
+    </div>
+  </body>
+</html>
