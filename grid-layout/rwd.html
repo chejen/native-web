@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>RWD</title>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <style>
+      .container {
+        background-color: #ccc;
+        width: 100%;
+        display: grid;
+        padding: 20px;
+        gap: 5px;
+        grid-template-columns: repeat(3, 1fr);
+        @media(max-width: 1024px) {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        @media(max-width: 480px) {
+          grid-template-columns: 1fr;
+        }
+      }
+      .item {
+        background-color: #888;
+        padding: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="item">1</div>
+      <div class="item">2</div>
+      <div class="item">3</div>
+      <div class="item">4</div>
+      <div class="item">5</div>
+      <div class="item">6</div>
+    </div>
+  </body>
+</html>
