@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Bubble</title>
+    <meta name="viewport" content="width=device-width" />
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      div {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #outer {
+        width: 300px;
+        height: 300px;
+        background-color: lightgray;
+      }
+      #middle {
+        width: 200px;
+        height: 200px;
+        background-color: lightblue;
+      }
+      #inner {
+        width: 100px;
+        height: 100px;
+        background-color: cornflowerblue;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="outer">
+      <div id="middle">
+        <div id="inner">cliek me</div>
+      </div>
+    </div>
+    <button onclick="inner.click()">Programmatically call .click()</button>
+    <script>
+      new MutationObserver(function () {
+        log('inner', 'mutated');
+      }).observe(inner, {
+        attributes: true,
+      });
+
+      new MutationObserver(function () {
+        log('middle', 'mutated');
+      }).observe(middle, {
+        attributes: true,
+      });
+
+      new MutationObserver(function () {
+        log('outer', 'mutated');
+      }).observe(outer, {
+        attributes: true,
+      });
+
+      inner.addEventListener('click', () => {
+        setTimeout(function () {
+          log('inner', 'timeout');
+        }, 0);
+
+        queueMicrotask(() => log('inner', 'queueMicrotask'));
+        inner.setAttribute('data-mutated-at', Date.now());
+
+        log('inner', 'clicked');
+      });
+
+      middle.addEventListener('click', () => {
+        setTimeout(function () {
+          log('middle', 'timeout');
+        }, 0);
+
+        middle.dataset.mutatedAt = Date.now();
+        queueMicrotask(() => log('middle', 'queueMicrotask'));
+
+        log('middle', 'clicked');
+      });
+
+      outer.addEventListener('click', () => {
+        setTimeout(function () {
+          log('outer', 'timeout');
+        }, 0);
+
+        queueMicrotask(() => log('outer', 'queueMicrotask'));
+        outer.setAttribute('data-mutated-at', Date.now());
+
+        log('outer', 'clicked');
+      });
+
+      function log(layer, text) {
+        let styles;
+        switch(layer) {
+          case 'inner':
+            styles = 'background-color: cornflowerblue; color: white';
+            break;
+          case 'middle':
+            styles = 'background-color: lightblue';
+            break;
+          default:
+          styles = 'background-color: lightgray';
+        }
+        console.log(`[${layer}] %c${text}`, styles);
+      }
+    </script>
+  </body>
+</html>
