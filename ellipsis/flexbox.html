@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Flexbox</title>
+    <meta name="viewport" content="width=device-width" />
+    <style>
+      body {
+        font-size: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      h3 {
+        margin: 30px 0 10px;
+      }
+      .container {
+        width: 400px;
+        display: flex;
+        justify-content: space-between;
+        gap: 5px;
+      }
+      .description {
+        background-color: #888;
+      }
+      .buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 5px;
+      }
+
+      #text2 {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      #text3 {
+        flex: 1 1 0;
+        /* flex-basis: 0; */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>Short description</h3>
+    <div class="container">
+      <div class="description">
+        this is description
+      </div>
+      <div id="buttons0" class="buttons">
+        <button>btn 0-1</button>
+        <button>btn 0-2</button>
+      </div>
+    </div>
+
+    <h3>Long description; but not what we want</h3>
+    <div class="container">
+      <div class="description">
+        this is description area with a lot of words here this is description area with a lot of words here
+      </div>
+      <div id="buttons1" class="buttons">
+        <button>btn 1-1</button>
+        <button>btn 1-2</button>
+      </div>
+    </div>
+
+    <h3>Make long description ellipsis</h3>
+    <div class="container">
+      <div id="text2" class="description">
+        this is description area with a lot of words here this is description area with a lot of words here
+      </div>
+      <div id="buttons2" class="buttons">
+        <button>btn 2-1</button>
+        <button>btn 2-2</button>
+      </div>
+    </div>
+
+    <h3>Make buttons' text not wrap</h3>
+    <div class="container">
+      <div id="text3" class="description">
+        this is description area with a lot of words here this is description area with a lot of words here
+      </div>
+      <div id="buttons3" class="buttons">
+        <button>btn 3-1</button>
+        <button>btn 3-2</button>
+      </div>
+    </div>
+
+    <h3>Notes</h3>
+    <ul>
+      <li>The default value of `flex` property is: initial (0 1 auto)</li>
+      <li>0 (flex-grow): The item will not grow to take up more space in the container.</li>
+      <li>1 (flex-shrink): The item will shrink if necessary to avoid overflowing the container.</li>
+      <li>auto (flex-basis): The initial size of the item is based on its content or width/height properties.</li>
+      <li style="color:deeppink">
+        In general, the flex-grow and flex-shrink properties distribute leftover or excess space proportionally among flex items.
+        However, when you set flex: n (which is shorthand for flex: n 1 0), the flex-basis is 0 instead of auto.
+        This means that initially, the item won't take up any space until it grows based on the available space.
+      </li>
+    </ul>
+  </body>
+</html>
