@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Viewport</title>
+    <style>
+      span {
+        color: salmon;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <p id="information"></p>
+    <script>
+      const dpr = window.devicePixelRatio || 1;
+      const cssWidth = window.innerWidth;
+      const cssHeight = window.innerHeight;
+      const physicalWidth = Math.round(cssWidth * dpr);
+      const physicalHeight = Math.round(cssHeight * dpr);
+      const screenWidth = window.screen.width;
+      const screenHeight = window.screen.height;
+
+      const content = `
+        Device Pixel Ratio: <span>${dpr}</span>,
+        Viewport size (CSS pixels): <span>${cssWidth} x ${cssHeight}</span>,
+        Viewport size (Physical pixels): <span>${physicalWidth} x ${physicalHeight}</span>,
+        Screen resolution: <span>${screenWidth} x ${screenHeight}</span>
+      `;
+      information.innerHTML = content;
+    </script>
+  </body>
+</html>
