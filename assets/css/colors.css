@@ -1,0 +1,79 @@
+:root {
+  font-family: Arial, Helvetica, sans-serif;
+}
+html, body {
+  height: 100%;
+  margin: 0;
+}
+* {
+  box-sizing: border-box;
+}
+
+li {
+  border-bottom: 1px solid gray;
+  list-style-type: none;
+  padding: 0 10px;
+}
+
+div[class^='color-'] {
+  display: inline-block;
+  margin: 5px 0;
+  width: 200px;
+  text-align: center;
+}
+
+.color-blue1 {
+  background-color: rgb(192, 206, 235);
+}
+.color-blue2 {
+  background-color: rgb(129, 160, 216);
+}
+.color-blue3 {
+  background-color: rgb(166, 196, 229);
+}
+.color-blue4 {
+  background-color: rgb(79, 131, 193);
+  color: white;
+}
+
+.color-purple1 {
+  background-color: rgb(201, 192, 236);
+}
+.color-purple2 {
+  background-color: rgb(147, 129, 218);
+}
+.color-purple3 {
+  background-color: rgb(178, 168, 211);
+}
+.color-purple4 {
+  background-color: rgb(99, 79, 162);
+  color: white;
+}
+
+.color-green1 {
+  background-color: rgb(197, 214, 186);
+}
+.color-green2 {
+  background-color: rgb(139, 175, 116);
+}
+.color-green3 {
+  background-color: rgb(188, 214, 172);
+}
+.color-green4 {
+  background-color: rgb(72, 117, 44);
+  color: white;
+}
+
+.color-yellow1 {
+  background-color: rgb(242, 223, 180);
+}
+.color-yellow2 {
+  background-color: rgb(229, 193, 106);
+}
+.color-yellow3 {
+  background-color: rgb(242, 205, 162);
+}
+.color-yellow4 {
+  background-color: rgb(218, 149, 75);
+  color: white;
+}
