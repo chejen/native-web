@@ -14,6 +14,13 @@
         text-align: center;
         margin: 30px 0 5px;
       }
+      code::before {
+        content: '*';
+        padding-right: 10px;
+      }
+      code {
+        color: orange;
+      }
       .container {
         width: 300px;
         height: 600px;
@@ -35,6 +42,9 @@
       .no-wrap {
         white-space: nowrap;
       }
+      .pre-line {
+        white-space: pre-line;
+      }
     </style>
   </head>
   <body>
@@ -45,6 +55,7 @@
       </div>
 
       <h3>Long content without spaces</h3>
+      <code>overflow-wrap: break-word</code>
       <div class="ellipsis break-word">
         longtextlongtextlongtextlongtextlongtextlongtextlongtextlongtextlongtextlongtextlongtextlongtextlongtextlongtext
       </div>
@@ -55,9 +66,17 @@
       </div>
 
       <h3>Tying icon and numbers together</h3>
+      <code>white-space: nowrap</code>
       <div class="ellipsis break-word">
         long text long text long text long text <span class="currency no-wrap"><img src="/assets/images/dollar-sign-bag.svg" width="12"> 88,888</span> long text long text long text long text long text long text long text long text long text
       </div>
+
+      <h3>Line break in HTML with '\n'</h3>
+      <code>white-space: pre-line</code>
+      <div id="foo" class="pre-line"></div>
+      <script>
+        foo.textContent = 'hello\n\world';
+      </script>
     </div>
   </body>
 </html>
