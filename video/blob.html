@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Blob</title>
+    <meta name="viewport" content="width=device-width" />
+  </head>
+  <body>
+    <h3>Demo</h3>
+    <p>
+      Media source:
+      <a href="https://media.w3.org/2010/05/sintel/trailer.mp4">
+        https://media.w3.org/2010/05/sintel/trailer.mp4
+      </a>
+    </p>
+    <video
+      id="videoElement"
+      style="width:600px;"
+      muted
+      controls
+      autoPlay
+      playsInline
+    ></video>
+    <script type="text/javascript">
+      const videoElement = document.getElementById('videoElement');
+      const params = new URL(document.location.toString()).searchParams;
+      const video = params.get('video');
+      fetch(video || 'trailer.mp4')
+        .then(response => response.blob())
+        .then(blob => {
+          // (X)
+          // const reader = new FileReader();
+          // reader.onloadend = function () {
+          //   const base64data = reader.result;
+          //   console.log({ videoElement, base64data });
+          //   videoElement.src = base64data;
+          // };
+          // reader.readAsDataURL(blob);
+
+          // (-) Doesn't work on iOS
+          // const videoUrl = URL.createObjectURL(blob);
+          // videoElement.src = videoUrl;
+          // videoElement.onloadeddata = () => URL.revokeObjectURL(videoUrl);
+
+          // (O)
+          const videoSource = document.createElement('source');
+          const videoUrl = URL.createObjectURL(blob);
+          videoSource.type = 'video/mp4';
+          videoSource.src = videoUrl;
+          videoElement.onloadeddata = () => {
+            // URL.revokeObjectURL(videoUrl); // which makes iOS failed to play
+            document.querySelector('h3').style = 'color: orange;';
+          };
+          videoElement.appendChild(videoSource);
+        })
+        .catch(error => console.error('Error loading video:', error));
+    </script>
+  </body>
+</html>
