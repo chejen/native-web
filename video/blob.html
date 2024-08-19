@@ -20,7 +20,9 @@
       controls
       autoPlay
       playsInline
-    ></video>
+    >
+      <source id="videoSource" type="video/mp4" src="" />
+    </video>
     <script type="text/javascript">
       const videoElement = document.getElementById('videoElement');
       const params = new URL(document.location.toString()).searchParams;
@@ -42,16 +44,25 @@
           // videoElement.src = videoUrl;
           // videoElement.onloadeddata = () => URL.revokeObjectURL(videoUrl);
 
-          // (O)
-          const videoSource = document.createElement('source');
+          // (O) dynamically creating <source>
+          // const videoSource = document.createElement('source');
+          // const videoUrl = URL.createObjectURL(blob);
+          // videoSource.type = 'video/mp4';
+          // videoSource.src = videoUrl;
+          // videoElement.onloadeddata = () => {
+          //   // URL.revokeObjectURL(videoUrl); // which makes iOS failed to play
+          //   document.querySelector('h3').style = 'color: orange;';
+          // };
+          // videoElement.appendChild(videoSource);
+
+          // (O) with existing <source>
+          const videoSource = document.getElementById('videoSource');
           const videoUrl = URL.createObjectURL(blob);
-          videoSource.type = 'video/mp4';
           videoSource.src = videoUrl;
           videoElement.onloadeddata = () => {
-            // URL.revokeObjectURL(videoUrl); // which makes iOS failed to play
-            document.querySelector('h3').style = 'color: orange;';
+            document.querySelector('h3').style = 'color: pink;';
           };
-          videoElement.appendChild(videoSource);
+          videoElement.load();
         })
         .catch(error => console.error('Error loading video:', error));
     </script>
