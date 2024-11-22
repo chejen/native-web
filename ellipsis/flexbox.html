@@ -29,7 +29,7 @@
         gap: 5px;
       }
 
-      #text2 {
+      .ellipsis, #text2, #text3 {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -38,9 +38,29 @@
       #text3 {
         flex: 1 1 0;
         /* flex-basis: 0; */
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+      }
+
+      .comparison-container {
+        max-width: 760px;
+        padding: 10px;
+        background-color: #eee;
+      }
+      .flex-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        border: 1px solid #ccc;
+      }
+      .nested-flex-container {
+        display: flex;
+        align-items: center;
+      }
+      .left {
+        flex-grow: 1;
+      }
+      .right {
+        flex-shrink: 0;
       }
     </style>
   </head>
@@ -101,5 +121,81 @@
         This means that initially, the item won't take up any space until it grows based on the available space.
       </li>
     </ul>
+
+    <h3>Comparison</h3>
+    <div class="comparison-container">
+      <section>
+        <h4>(1) initial</h4>
+        <div class="flex-container">
+          <div class="left">
+            <p>very very very very very very very very very very very very very very very very very very very very very very very long text</p>
+          </div>
+          <div class="right"><button>see more</button></div>
+        </div>
+      </section>
+
+      <section>
+        <h4>(2) ellipsis added - doesn't work</h4>
+        <div class="flex-container">
+          <div class="left">
+            <p class="ellipsis">
+              very very very very very very very very very very very very very very very very very very very very very very very long text
+            </p>
+          </div>
+          <div class="right">
+            <button>see more</button>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h4>
+          (3) add <span style="color: red;">overflow: hidden</span> for container
+          (<span style="color: red;">flex-shrink: 0</span> avoid button's text wrapping) -
+          <span style="color: green;">works</span>
+        </h4>
+        <div class="flex-container">
+          <div class="left" style="overflow: hidden;">
+            <p class="ellipsis">
+              very very very very very very very very very very very very very very very very very very very very very very very long text
+            </p>
+          </div>
+          <div class="right">
+            <button>see more</button>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h4>(4) nested flexbox - <span style="color: green;">works</span></h4>
+        <div class="flex-container">
+          <div class="left nested-flex-container" style="overflow: hidden;">
+            <p class="ellipsis" style="font-size: 20px;">
+              Top <span style="font-size: 10px;">test</span>
+              Very very very very very very very very very very very very very very very very very very very very very very very long text
+            </p>
+          </div>
+          <div class="right">
+            <button>see more</button>
+          </div>
+        </div>
+      </section>
+
+      <h4>(5) nested flexbox (set of 3) - <span style="color: green;">works</span></h4>
+      <div class="flex-container">
+        <div class="left nested-flex-container" style="overflow: hidden;">
+          <p class="nested-flex-container" style="font-size: 20px;">
+            Top <span style="font-size: 10px;">test</span>
+            <div class="ellipsis">
+              Very very very very very very very very very very very very very very very very very very very very very very very long text
+            </div>
+          </p>
+        </div>
+        <div class="right">
+          <button>see more</button>
+        </div>
+      </div>
+    </section>
+    </div>
   </body>
 </html>
