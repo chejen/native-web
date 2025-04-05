@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Tab Music Player</title>
+  <title>Music Player - Audio API</title>
   <meta name="viewport" content="width=device-width" />
   <style>
     html, body {
@@ -30,10 +30,10 @@
       align-items: center;
     }
     .success {
-      color: yellowgreen;
+      color: dodgerblue;
     }
     .error {
-      color: palevioletred;
+      color: goldenrod;
     }
     .desc {
       color: gray;
@@ -46,11 +46,7 @@
   </style>
 </head>
 <body>
-  <h1>Playback issues on iOS 18</h1>
-  <audio id="audioPlayer" loop>
-    <source src="https://download.samplelib.com/mp3/sample-15s.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
-  </audio>
+  <h1>Playback issues on iOS 17 - Audio API</h1>
   <div class="center">
     <button id="playBtn">Play</button>
   </div>
@@ -58,6 +54,12 @@
 
   <script>
     let isPlayed = false;
+    let audioContext;
+    let sourceNode;
+    let audioBuffer;
+    let startTime = 0;
+    let offset = 0;
+    const audioURL = "./sample-15s.mp3";
     const log = (msg, err) => {
       const li = document.createElement('li');
       const spanMsg = document.createElement('span');
@@ -65,7 +67,9 @@
       const spanErrMsg = document.createElement('span');
       spanMsg.textContent = msg;
       spanMsg.classList.add(err ? 'error' : 'success');
-      spanStatus.textContent = `[${new Date().toLocaleString()}] paused: ${audioPlayer.paused}, ended: ${audioPlayer.ended}. `;
+      const paused = !isPlayed;
+      const ended = false; // no state tracking in Web Audio API
+      spanStatus.textContent = `[${new Date().toLocaleString()}] paused: ${paused}, ended: ${ended}. `;
       li.append(spanStatus, spanMsg);
       if (err) {
         spanErrMsg.textContent = ` - ${err.toString()}`;
@@ -73,21 +77,44 @@
         li.append(spanErrMsg);
       }
       debugInfo.append(li);
-    }
-    const play = (logMsg) => {
-      audioPlayer.play()
-        .then(() => {
-          isPlayed = true;
-          playBtn.textContent = 'Pause';
-          log(`Played successfully: ${logMsg}`);
-        })
-        .catch(err => {
-          log(`Failed to play: ${logMsg}`, err);
-        });
-    }
+    };
+
+    const createSource = () => {
+      const node = audioContext.createBufferSource();
+      node.buffer = audioBuffer;
+      node.loop = true;
+      node.connect(audioContext.destination);
+      return node;
+    };
+
+    const play = async (logMsg) => {
+      try {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          const response = await fetch(audioURL);
+          const arrayBuffer = await response.arrayBuffer();
+          audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        }
+        sourceNode = createSource();
+        if (!audioBuffer) return false;
+        sourceNode.start(0, offset % audioBuffer.duration);
+        startTime = audioContext.currentTime - offset;
+        isPlayed = true;
+        playBtn.textContent = 'Pause';
+        log(`Played successfully: ${logMsg}`);
+      } catch (err) {
+        log(`Failed to play: ${logMsg}`, err);
+      }
+    };
+
     const pause = (logMsg) => {
       try {
-        audioPlayer.pause();
+        if (sourceNode) {
+          sourceNode.stop();
+          offset = audioContext.currentTime - startTime;
+          sourceNode.disconnect();
+          sourceNode = null;
+        }
         isPlayed = false;
         playBtn.textContent = 'Play';
         log(`Pause successfully: ${logMsg}`);
@@ -105,8 +132,6 @@
       if (isPlayed) pause('user clicked');
       else play('user clicked');
     });
-
-    window.addEventListener('load', play('after page loaded'));
   </script>
 </body>
 </html>

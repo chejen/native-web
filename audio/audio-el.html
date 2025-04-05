@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Music Player - Audio Elem</title>
+  <meta name="viewport" content="width=device-width" />
+  <style>
+    html, body {
+      height: 100vh;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 10px;
+      background-color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+    }
+    ul {
+      padding-left: 1rem;
+      font-size: 1.2rem;
+      flex: 1;
+      overflow-y: auto;
+    }
+    li {
+      padding: 3px 0;
+    }
+    .center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .success {
+      color: yellowgreen;
+    }
+    .error {
+      color: palevioletred;
+    }
+    .desc {
+      color: gray;
+    }
+    #playBtn {
+      font-size: 48px;
+      padding: 15px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Playback issues on iOS 17 - Audio ELEM</h1>
+  <audio id="audioPlayer" loop>
+    <source src="https://download.samplelib.com/mp3/sample-15s.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+  <div class="center">
+    <button id="playBtn">Play</button>
+  </div>
+  <ul id="debugInfo"></ul>
+
+  <script>
+    let isPlayed = false;
+    const log = (msg, err) => {
+      const li = document.createElement('li');
+      const spanMsg = document.createElement('span');
+      const spanStatus = document.createElement('span');
+      const spanErrMsg = document.createElement('span');
+      spanMsg.textContent = msg;
+      spanMsg.classList.add(err ? 'error' : 'success');
+      spanStatus.textContent = `[${new Date().toLocaleString()}] paused: ${audioPlayer.paused}, ended: ${audioPlayer.ended}. `;
+      li.append(spanStatus, spanMsg);
+      if (err) {
+        spanErrMsg.textContent = ` - ${err.toString()}`;
+        spanErrMsg.classList.add('desc');
+        li.append(spanErrMsg);
+      }
+      debugInfo.append(li);
+    };
+    const play = (logMsg) => {
+      audioPlayer.play()
+        .then(() => {
+          isPlayed = true;
+          playBtn.textContent = 'Pause';
+          log(`Played successfully: ${logMsg}`);
+        })
+        .catch(err => {
+          log(`Failed to play: ${logMsg}`, err);
+        });
+    };
+    const pause = (logMsg) => {
+      try {
+        audioPlayer.pause();
+        isPlayed = false;
+        playBtn.textContent = 'Play';
+        log(`Pause successfully: ${logMsg}`);
+      } catch (err) {
+        log(`Failed to pause: ${logMsg}`, err);
+      }
+    };
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) pause('document.hidden = true');
+      else play('document.hidden = false');
+    });
+
+    playBtn.addEventListener('click', () => {
+      if (isPlayed) pause('user clicked');
+      else play('user clicked');
+    });
+
+    window.addEventListener('load', () => play('after page loaded'));
+  </script>
+</body>
+</html>
