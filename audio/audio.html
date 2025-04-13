@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Audio Playback Test</title>
+  <meta name="viewport" content="width=device-width" />
+  <style>
+    html, body {
+      height: 100vh;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 10px;
+      background-color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+    }
+    .center {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    button {
+      height: 4rem;
+    }
+    .center button {
+      flex: 1;
+    }
+    #resetBtn {
+      margin: 10px 0;
+    }
+    #state {
+      white-space: pre;
+    }
+  </style>
+</head>
+<body>
+  <h1>Audio Playback Test</h1>
+  <div class="center">
+    <button id="playBtn1">Play<br>(with HTMLAudioElement)</button>
+    <button id="playBtn2">Play<br>(with Web Audio API)</button>
+  </div>
+  <button id="resetBtn" disabled>Reset</button>
+  <div id="state"></div>
+
+  <script>
+    let audioElement;
+    let audioContext;
+    let sourceNode;
+    const audioURL = 'sample-15s.mp3';
+    const statechangeHandler = () => {
+      console.log(`statechange => ${audioContext.state}`);
+      state.textContent += `statechange: ${audioContext.state}\n`;
+    };
+
+    playBtn1.addEventListener('click', () => {
+      audioElement = new Audio(audioURL);
+      audioElement.loop = true;
+      audioElement.play();
+
+      playBtn1.disabled = true;
+      playBtn2.disabled = true;
+      resetBtn.disabled = false;
+    });
+
+    playBtn2.addEventListener('click', async () => {
+      audioContext = new AudioContext();
+      audioContext.addEventListener('statechange', statechangeHandler);
+
+      const response = await fetch(audioURL);
+      const arrayBuffer = await response.arrayBuffer();
+      sourceNode = audioContext.createBufferSource();
+      sourceNode.buffer = await audioContext.decodeAudioData(arrayBuffer);;
+      sourceNode.loop = true;
+      sourceNode.connect(audioContext.destination);
+      sourceNode.start();
+
+      playBtn1.disabled = true;
+      playBtn2.disabled = true;
+      resetBtn.disabled = false;
+    });
+
+    resetBtn.addEventListener('click', async () => {
+      if (audioElement) {
+        audioElement.pause();
+        audioElement = undefined;
+      }
+      if (sourceNode) {
+        sourceNode.stop();
+        sourceNode.disconnect();
+        sourceNode = null;
+      }
+      if (audioContext) {
+        audioContext.removeEventListener('statechange', statechangeHandler);
+        await audioContext.close();
+        audioContext = null;
+      }
+      playBtn1.disabled = false;
+      playBtn2.disabled = false;
+      resetBtn.disabled = true;
+    });
+  </script>
+</body>
+</html>
