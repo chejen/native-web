@@ -23,11 +23,52 @@
     h1 {
       font-family: 'Chicalo';
     }
+    canvas {
+      border: 1px solid black;
+    }
   </style>
 </head>
 <body>
   <h1>Gradient Text</h1>
   <script>
+    const canvas = document.createElement('canvas');
+    canvas.setAttribute('width', '480');
+    canvas.setAttribute('height', '120');
+    const ctx = canvas.getContext('2d');
+
+    function drawText(text, canvasWidth, canvasHeight) {
+      ctx.font = '90px Chicalo';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.letterSpacing = '8px';
+
+      // Set shadow
+      ctx.shadowColor = '#000';
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 3;
+      ctx.shadowBlur = 3; // adjust this for a softer shadow
+
+      // Stroke
+      const gradientStrokeStyle = ctx.createLinearGradient(0, 20, 0, canvasHeight - 40);
+      gradientStrokeStyle.addColorStop(0, '#3741AD');
+      gradientStrokeStyle.addColorStop(1, '#831110');
+      ctx.strokeStyle = gradientStrokeStyle;
+      ctx.lineWidth = 6;
+      ctx.strokeText(text, canvasWidth / 2, canvasHeight / 2 + 10);
+
+      // Text
+      const gradientFillStyle = ctx.createLinearGradient(0, 0, 0, canvasHeight);
+      gradientFillStyle.addColorStop(0.1004, '#FBFAF4');
+      gradientFillStyle.addColorStop(0.5858, '#FFD105');
+      gradientFillStyle.addColorStop(0.9401, '#F8AA00');
+      ctx.fillStyle = gradientFillStyle;
+      ctx.fillText(text, canvasWidth / 2, canvasHeight / 2 + 10);
+    }
+
+    document.fonts.ready.then(function () {
+      drawText('9453', canvas.width, canvas.height);
+      document.body.appendChild(canvas);
+    });
   </script>
 </body>
 </html>
