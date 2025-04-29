@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Gradient Text</title>
+  <meta name="viewport" content="width=device-width" />
+  <!--
+    https://web.dev/articles/font-best-practices
+     - A common misconception is that a font is requested when a @font-face declaration is encountered. This is false. By itself, @font-face declaration doesn't trigger font download. Rather, a font is downloaded only if it's referenced by styling that is used on the page.
+     - In this example, Chicalo would only be downloaded if the page contained a <h1> element.
+    https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/rel/preload#Cross-origin_fetches
+     - font and fetch preloading requires the crossorigin attribute to be set
+  -->
+  <link rel="preload" href="../assets/fonts/Chicalo.otf" as="font" type="font/otf" crossorigin="anonymous" />
+  <style>
+    @font-face {
+      font-family: 'Chicalo';
+      src: url('../assets/fonts/Chicalo.otf') format('opentype');
+    }
+    html, body {
+      height: 100vh;
+    }
+    h1 {
+      font-family: 'Chicalo';
+    }
+  </style>
+</head>
+<body>
+  <h1>Gradient Text</h1>
+  <script>
+  </script>
+</body>
+</html>
