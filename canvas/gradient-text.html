@@ -65,9 +65,29 @@
       ctx.fillText(text, canvasWidth / 2, canvasHeight / 2 + 10);
     }
 
+    function createButton() {
+      const button = document.createElement('button');
+      button.textContent = 'Canvas to Image';
+      button.addEventListener('click', () => {
+        canvas.toBlob((blob) => {
+          const objectUrl = URL.createObjectURL(blob);
+          const img = document.createElement('img');
+          img.src = objectUrl;
+          img.onload = () => {
+            URL.revokeObjectURL(objectUrl);
+          };
+          document.body.appendChild(img);
+        });
+      });
+      document.body.appendChild(button);
+    }
+
     document.fonts.ready.then(function () {
       drawText('9453', canvas.width, canvas.height);
       document.body.appendChild(canvas);
+      document.body.appendChild(document.createElement('br'));
+      createButton();
+      document.body.appendChild(document.createElement('br'));
     });
   </script>
 </body>
