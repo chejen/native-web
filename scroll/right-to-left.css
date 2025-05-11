@@ -1,0 +1,30 @@
+.container {
+  /* Layout should be right-to-left, */
+  /* and it should be scrollable if the content overflows */
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.container.styles {
+  width: 300px;
+  background-color: #555;
+  padding: 10px;
+}
+.container::-webkit-scrollbar {
+  display: none;
+}
+.item {
+  flex: 0 0 auto; /* Prevent flex-grow, flex-shrink and wrapping */
+  
+}
+.item.styles {
+  height: 24px;
+  padding: 8px;
+  border: 2px solid #ddd;
+  background-color: #aaa;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+}
