@@ -15,7 +15,7 @@
 </head>
 <body>
   <h1>Boxes</h1>
-  <canvas id="canvas" />
+  <canvas id="canvas"></canvas>
   <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
@@ -27,6 +27,20 @@
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.font = '18px Roboto, Arial';
+
+    const cells = [{
+      num: 23,
+      cellStyle: 'INIT'
+    }, {
+      num: 34,
+      cellStyle: 'MARKED'
+    }, {
+      num: 45,
+      cellStyle: 'ONE_LEFT'
+    }, {
+      num: 55,
+      cellStyle: 'ONE_LEFT'
+    }];
 
     function drawRoundedRect({
       x,
@@ -85,55 +99,55 @@
       ctx.stroke();
     }
 
-    // Rectangle 1
-    ctx.fillStyle = "rgba(131, 158, 230, 0.5)";
-    ctx.strokeStyle = "#839EE6";
-    drawRoundedRect({ x: 10, y: 10, width: 30, height: 30, radius: 6, dashed: true });
-    ctx.fillStyle = "#2B4995";
-    ctx.fillText(23, 10 + 30 / 2, 1 + 10 + 30 / 2);
+    function drawRectangles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before redrawing
 
-    // Rectangle 2
-    ctx.fillStyle = "#FFAC43";
-    ctx.strokeStyle = "#EA8C15";
-    drawRoundedRect({ x: 50, y: 10, width: 30, height: 30, radius: 6, dashed: false });
-    ctx.fillStyle = "#933807";
-    ctx.fillText(34, 50 + 30 / 2, 1 + 10 + 30 / 2);
+      cells.forEach(cell => {
+        switch (cell.cellStyle) {
+          case 'MARKED':
+            ctx.fillStyle = "#FFAC43";
+            ctx.strokeStyle = "#EA8C15";
+            drawRoundedRect({ x: 50, y: 10, width: 30, height: 30, radius: 6, dashed: false });
+            ctx.fillStyle = "#933807";
+            ctx.fillText(34, 50 + 30 / 2, 1 + 10 + 30 / 2);
+            break;
 
-    // Rectangle 3
-    ctx.fillStyle = "#FFFFFF";
-    ctx.strokeStyle = "#FFAC43";
+          case 'ONE_LEFT':
+            ctx.fillStyle = "#FFFFFF";
+            ctx.strokeStyle = "#FFAC43";
+            drawRoundedRect({
+              x: 130,
+              y: 10,
+              width: 30,
+              height: 30,
+              radius: 6,
+              glowOffset: 7,
+              glowRBG: [255, 172, 67],
+              dashed: false,
+            });
 
-    ctx.save();
-    ctx.shadowBlur = 3;
-    ctx.shadowOffsetX = -2;
-    ctx.shadowOffsetY = -2;
-    ctx.shadowColor = "#FFAC43";
-    const params = { x: 90, y: 10, width: 30, height: 30, radius: 6 };
-    // clip and then draw
-    drawRoundedRect({ ...params, clipped: true });
-    drawRoundedRect({ ...params, dashed: false });
-    ctx.restore();
+            ctx.fillStyle = "#FF5900";
+            ctx.fillText(56, 130 + 30 / 2, 1 + 10 + 30 / 2);
+            break;
 
-    ctx.fillStyle = "#FF5900";
-    ctx.fillText(45, 90 + 30 / 2, 1 + 10 + 30 / 2);
+          default:
+            ctx.fillStyle = "rgba(131, 158, 230, 0.5)";
+            ctx.strokeStyle = "#839EE6";
+            drawRoundedRect({
+              x: 10,
+              y: 10,
+              width: 30,
+              height: 30,
+              radius: 6,
+              dashed: true,
+            });
+            ctx.fillStyle = "#2B4995";
+            ctx.fillText(23, 10 + 30 / 2, 1 + 10 + 30 / 2);
+        }
+      });
+    }
 
-    // Rectangle 4
-    const rec4 = {
-      x: 130,
-      y: 10,
-      width: 30,
-      height: 30,
-      radius: 6,
-      glowOffset: 7,
-      glowRBG: [255, 172, 67],
-      dashed: false,
-    };
-    ctx.fillStyle = "#FFFFFF";
-    ctx.strokeStyle = "#FFAC43";
-    drawRoundedRect(rec4);
-
-    ctx.fillStyle = "#FF5900";
-    ctx.fillText(56, 130 + 30 / 2, 1 + 10 + 30 / 2);
+    drawRectangles(); // Initial draw
   </script>
 </body>
 </html>
