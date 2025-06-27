@@ -34,6 +34,8 @@
       width,
       height,
       radius = 2,
+      glowOffset = 0,
+      glowRBG = [],
       dashed = false,
       clipped = false,
     }) {
@@ -54,21 +56,50 @@
       if (clipped) return ctx.clip();
 
       ctx.fill();
+
+      if (glowOffset && glowRBG.length) {
+        ctx.save();
+        ctx.clip();
+
+        const startRGBA = `rgba(${glowRBG[0]}, ${glowRBG[1]}, ${glowRBG[2]}, 0.50)`;
+        const endRGBA = `rgba(${glowRBG[0]}, ${glowRBG[1]}, ${glowRBG[2]}, 0)`;
+        const rightGlow = ctx.createLinearGradient(
+          x + width, y, x + width - glowOffset, y
+        );
+        rightGlow.addColorStop(0, startRGBA);
+        rightGlow.addColorStop(1, endRGBA);
+        ctx.fillStyle = rightGlow;
+        ctx.fillRect(x + width - glowOffset * 2, y, glowOffset * 2, height);
+  
+        const bottomGlow = ctx.createLinearGradient(
+          x, y + height, x, y + height - glowOffset
+        );
+        bottomGlow.addColorStop(0, startRGBA);
+        bottomGlow.addColorStop(1, endRGBA);
+        ctx.fillStyle = bottomGlow;
+        ctx.fillRect(x, y + height - glowOffset * 2, width, glowOffset * 2);
+
+        ctx.restore();
+      }
+
       ctx.stroke();
     }
 
+    // Rectangle 1
     ctx.fillStyle = "rgba(131, 158, 230, 0.5)";
     ctx.strokeStyle = "#839EE6";
     drawRoundedRect({ x: 10, y: 10, width: 30, height: 30, radius: 6, dashed: true });
     ctx.fillStyle = "#2B4995";
     ctx.fillText(23, 10 + 30 / 2, 1 + 10 + 30 / 2);
 
+    // Rectangle 2
     ctx.fillStyle = "#FFAC43";
     ctx.strokeStyle = "#EA8C15";
     drawRoundedRect({ x: 50, y: 10, width: 30, height: 30, radius: 6, dashed: false });
     ctx.fillStyle = "#933807";
     ctx.fillText(34, 50 + 30 / 2, 1 + 10 + 30 / 2);
 
+    // Rectangle 3
     ctx.fillStyle = "#FFFFFF";
     ctx.strokeStyle = "#FFAC43";
 
@@ -85,6 +116,24 @@
 
     ctx.fillStyle = "#FF5900";
     ctx.fillText(45, 90 + 30 / 2, 1 + 10 + 30 / 2);
+
+    // Rectangle 4
+    const rec4 = {
+      x: 130,
+      y: 10,
+      width: 30,
+      height: 30,
+      radius: 6,
+      glowOffset: 7,
+      glowRBG: [255, 172, 67],
+      dashed: false,
+    };
+    ctx.fillStyle = "#FFFFFF";
+    ctx.strokeStyle = "#FFAC43";
+    drawRoundedRect(rec4);
+
+    ctx.fillStyle = "#FF5900";
+    ctx.fillText(56, 130 + 30 / 2, 1 + 10 + 30 / 2);
   </script>
 </body>
 </html>
