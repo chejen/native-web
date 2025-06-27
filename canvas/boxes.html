@@ -23,6 +23,11 @@
     canvas.setAttribute('width', '480');
     canvas.setAttribute('height', '120');
 
+    // Takes effect after canvas.setAttribute
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = '18px Roboto, Arial';
+
     function drawRoundedRect({ x, y, width, height, radius = 2, dashed = false }) {
       ctx.beginPath();
       ctx.moveTo(x + radius, y);
@@ -44,14 +49,20 @@
     ctx.fillStyle = "rgba(131, 158, 230, 0.5)";
     ctx.strokeStyle = "#839EE6";
     drawRoundedRect({ x: 10, y: 10, width: 30, height: 30, radius: 6, dashed: true });
+    ctx.fillStyle = "#2B4995";
+    ctx.fillText(23, 10 + 30 / 2, 1 + 10 + 30 / 2);
 
     ctx.fillStyle = "#FFAC43";
     ctx.strokeStyle = "#EA8C15";
     drawRoundedRect({ x: 50, y: 10, width: 30, height: 30, radius: 6, dashed: false });
+    ctx.fillStyle = "#933807";
+    ctx.fillText(34, 50 + 30 / 2, 1 + 10 + 30 / 2);
 
     ctx.fillStyle = "#FFFFFF";
     ctx.strokeStyle = "#FFAC43";
     drawRoundedRect({ x: 90, y: 10, width: 30, height: 30, radius: 6, dashed: false });
+    ctx.fillStyle = "#FF5900";
+    ctx.fillText(45, 90 + 30 / 2, 1 + 10 + 30 / 2);
   </script>
 </body>
 </html>
