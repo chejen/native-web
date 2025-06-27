@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Boxes</title>
+  <meta name="viewport" content="width=device-width" />
+  <style>
+    html, body {
+      height: 100vh;
+    }
+    canvas {
+      border: 1px solid black;
+    }
+  </style>
+</head>
+<body>
+  <h1>Boxes</h1>
+  <canvas id="canvas" />
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.setAttribute('width', '480');
+    canvas.setAttribute('height', '120');
+
+    function drawRoundedRect({ x, y, width, height, radius = 2, dashed = false }) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+
+      ctx.setLineDash(dashed ? [4, 4] : []);
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = "rgba(131, 158, 230, 0.5)";
+    ctx.strokeStyle = "#839EE6";
+    drawRoundedRect({ x: 10, y: 10, width: 30, height: 30, radius: 6, dashed: true });
+
+    ctx.fillStyle = "#FFAC43";
+    ctx.strokeStyle = "#EA8C15";
+    drawRoundedRect({ x: 50, y: 10, width: 30, height: 30, radius: 6, dashed: false });
+
+    ctx.fillStyle = "#FFFFFF";
+    ctx.strokeStyle = "#FFAC43";
+    drawRoundedRect({ x: 90, y: 10, width: 30, height: 30, radius: 6, dashed: false });
+  </script>
+</body>
+</html>
