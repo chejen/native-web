@@ -28,7 +28,15 @@
     ctx.textBaseline = "middle";
     ctx.font = '18px Roboto, Arial';
 
-    function drawRoundedRect({ x, y, width, height, radius = 2, dashed = false }) {
+    function drawRoundedRect({
+      x,
+      y,
+      width,
+      height,
+      radius = 2,
+      dashed = false,
+      clipped = false,
+    }) {
       ctx.beginPath();
       ctx.moveTo(x + radius, y);
       ctx.lineTo(x + width - radius, y);
@@ -42,6 +50,9 @@
       ctx.closePath();
 
       ctx.setLineDash(dashed ? [4, 4] : []);
+
+      if (clipped) return ctx.clip();
+
       ctx.fill();
       ctx.stroke();
     }
@@ -60,7 +71,18 @@
 
     ctx.fillStyle = "#FFFFFF";
     ctx.strokeStyle = "#FFAC43";
-    drawRoundedRect({ x: 90, y: 10, width: 30, height: 30, radius: 6, dashed: false });
+
+    ctx.save();
+    ctx.shadowBlur = 3;
+    ctx.shadowOffsetX = -2;
+    ctx.shadowOffsetY = -2;
+    ctx.shadowColor = "#FFAC43";
+    const params = { x: 90, y: 10, width: 30, height: 30, radius: 6 };
+    // clip and then draw
+    drawRoundedRect({ ...params, clipped: true });
+    drawRoundedRect({ ...params, dashed: false });
+    ctx.restore();
+
     ctx.fillStyle = "#FF5900";
     ctx.fillText(45, 90 + 30 / 2, 1 + 10 + 30 / 2);
   </script>
