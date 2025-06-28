@@ -9,7 +9,7 @@
       height: 100vh;
     }
     canvas {
-      border: 1px solid black;
+      border: 1px solid #D2D9FB;
     }
     button {
       margin-top: 20px;
@@ -36,6 +36,9 @@
       MARKED: {
         dashed: false,
       },
+      ONE_LEFT_PLACEHOLDER: {
+        dashed: false,
+      },
       ONE_LEFT: {
         dashed: false,
         glowOffset: 7,
@@ -47,8 +50,8 @@
     canvas.setAttribute('height', '120');
 
     // Takes effect after canvas.setAttribute
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
     ctx.font = '18px Roboto, Arial';
 
     const cells = [{
@@ -61,6 +64,12 @@
       x: 50,
       y: 10,
       number: 34,
+      cellStyle: 'INIT',
+      taskStack: [],
+    }, {
+      x: 90,
+      y: 10,
+      number: 76,
       cellStyle: 'MARKED',
       taskStack: [],
     }, {
@@ -71,7 +80,7 @@
       taskStack: [],
     }];
 
-    function processTask(cell) {
+    function beforeRenderCell(cell) {
       const { taskStack = [] } = cell;
       if (!taskStack.length) return;
       const task = taskStack.pop();
@@ -80,43 +89,70 @@
 
       if (task.taskType === 'updateCellType') return;
 
-      if (task.taskType === 'fadeOut') {
-        if (task.processingStartTime) {
-          const elapsed = Date.now() - task.processingStartTime;
-          if (elapsed > task.durationInMilliSeconds) return;
-          cell.opacity = 1 - elapsed / task.durationInMilliSeconds;
-        } else {
-          task.processingStartTime = Date.now();
-        }
+      if (['fadeOut', 'fadeIn'].includes(task.taskType)) {
+        const now = Date.now();
+        if (!task.processingStartTime) task.processingStartTime = now;
+
+        const elapsed = now - task.processingStartTime;
+        if (elapsed > task.durationInMilliSeconds) return;
+
+        cell.opacity = task.taskType === 'fadeOut'
+          ? 1 - elapsed / task.durationInMilliSeconds
+          : elapsed / task.durationInMilliSeconds;
         taskStack.push(task);
-        return;
+      }
+    }
+
+    function renderCell(cell) {
+      ctx.globalAlpha = cell.opacity ?? 1;
+
+      switch (cell.cellStyle) {
+        case 'MARKED':
+        case 'ONE_LEFT_PLACEHOLDER':
+          ctx.fillStyle = '#FFAC43';
+          ctx.strokeStyle = cell.cellStyle === 'MARKED' ? '#EA8C15' : '#fff';
+          drawRoundedRect({ ...cell, ...cellStyles[cell.cellStyle] });
+          ctx.fillStyle = '#933807';
+          drawNumber(cell);
+          break;
+
+        case 'ONE_LEFT':
+          ctx.fillStyle = '#FFFFFF';
+          ctx.strokeStyle = '#FFAC43';
+          drawRoundedRect({ ...cell, ...cellStyles[cell.cellStyle] });
+          ctx.fillStyle = '#FF5900';
+          drawNumber(cell);
+          break;
+
+        case 'INIT':
+          ctx.fillStyle = 'rgba(131, 158, 230, 0.5)';
+          ctx.strokeStyle = '#839EE6';
+          drawRoundedRect({ ...cell, ...cellStyles[cell.cellStyle] });
+          ctx.fillStyle = '#2B4995';
+          drawNumber(cell);
+          break;
+
+        default:
+          break;
       }
 
-      if (task.taskType === 'fadeOut') {
-        if (task.processingStartTime) {
-          const elapsed = Date.now() - task.processingStartTime;
-          if (elapsed > task.durationInMilliSeconds) return;
-          cell.opacity = 1 - elapsed / task.durationInMilliSeconds;
-        } else {
-          task.processingStartTime = Date.now();
-          cell.opacity = 1;
-        }
-        taskStack.push(task);
-        return;
-      }
+      ctx.globalAlpha = 1; // Reset opacity
+    }
 
-      if (task.taskType === 'fadeIn') {
-        if (task.processingStartTime) {
-          const elapsed = Date.now() - task.processingStartTime;
-          if (elapsed > task.durationInMilliSeconds) return;
-          cell.opacity = elapsed / task.durationInMilliSeconds;
-        } else {
-          task.processingStartTime = Date.now();
-          cell.opacity = 0;
-        }
-        taskStack.push(task);
-        return;
-      }
+    function drawRectangles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before redrawing
+      ctx.fillStyle = '#D2D9FB';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      let isTasksCompleted = true;
+      cells.forEach(cell => {
+        beforeRenderCell(cell);
+        renderCell(cell);
+
+        if (cell.taskStack?.length) isTasksCompleted = false;
+      });
+
+      if (!isTasksCompleted) requestAnimationFrame(drawRectangles);
     }
 
     function drawRoundedRect({
@@ -188,43 +224,13 @@
 
     function drawRectangles(timestamp) {
       ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before redrawing
+      ctx.fillStyle = '#D2D9FB';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       let isTasksCompleted = true;
       cells.forEach(cell => {
-        processTask(cell);
-        ctx.globalAlpha = cell.opacity ?? 1;
-
-        switch (cell.cellStyle) {
-          case 'MARKED':
-            ctx.fillStyle = "#FFAC43";
-            ctx.strokeStyle = "#EA8C15";
-            drawRoundedRect({ ...cell, ...cellStyles[cell.cellStyle] });
-            ctx.fillStyle = "#933807";
-            drawNumber(cell);
-            break;
-
-          case 'ONE_LEFT':
-            ctx.fillStyle = "#FFFFFF";
-            ctx.strokeStyle = "#FFAC43";
-            drawRoundedRect({ ...cell, ...cellStyles[cell.cellStyle] });
-
-            ctx.fillStyle = "#FF5900";
-            drawNumber(cell);
-            break;
-
-          case 'INIT':
-            ctx.fillStyle = "rgba(131, 158, 230, 0.5)";
-            ctx.strokeStyle = "#839EE6";
-            drawRoundedRect({ ...cell, ...cellStyles[cell.cellStyle] });
-            ctx.fillStyle = "#2B4995";
-            drawNumber(cell);
-            break;
-
-          default: // NONE
-            break;
-        }
-
-        ctx.globalAlpha = 1;
+        beforeRenderCell(cell);
+        renderCell(cell);
         if (cell.taskStack?.length) isTasksCompleted = false;
       });
 
@@ -235,15 +241,15 @@
 
     fadeButton.addEventListener('click', () => {
       // FILO
-      // cells[0].taskStack.push({
-      //   taskType: 'fadeIn',
-      //   durationInMilliSeconds: 100,
-      //   cellStyle: 'MARKED',
-      // }, {
-      //   taskType: 'fadeOut',
-      //   durationInMilliSeconds: 100,
-      //   cellStyle: 'INIT',
-      // });
+      cells[0].taskStack.push({
+        taskType: 'fadeIn',
+        durationInMilliSeconds: 100,
+        cellStyle: 'MARKED',
+      }, {
+        taskType: 'fadeOut',
+        durationInMilliSeconds: 100,
+        cellStyle: 'INIT',
+      });
 
       // cells[0].taskStack.push({
       //   taskType: 'fadeIn',
@@ -254,20 +260,22 @@
       //   cellStyle: 'NONE'
       // });
 
-      cells[0].taskStack.push({
+      cells[1].taskStack.push({
         taskType: 'fadeIn',
-        durationInMilliSeconds: 300,
+        durationInMilliSeconds: 250,
         cellStyle: 'ONE_LEFT',
       }, {
-        taskType: 'updateCellType',
-        cellStyle: 'NONE'
+        taskType: 'fadeOut',
+        durationInMilliSeconds: 50,
+        cellStyle: 'ONE_LEFT_PLACEHOLDER',
       }, {
         taskType: 'fadeIn',
-        durationInMilliSeconds: 200,
-        cellStyle: 'MARKED',
+        durationInMilliSeconds: 150,
+        cellStyle: 'ONE_LEFT_PLACEHOLDER',
       }, {
-        taskType: 'updateCellType',
-        cellStyle: 'NONE'
+        taskType: 'fadeOut',
+        durationInMilliSeconds: 50,
+        cellStyle: 'INIT',
       });
 
       cells[2].taskStack.push({
