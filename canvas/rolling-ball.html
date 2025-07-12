@@ -18,10 +18,15 @@
   <script>
     const canvasWidth = 400;
     const canvasHeight = 200;
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
     const ballRadius = 15;
     const ctx = canvas.getContext('2d');
+    // CSS uses software pixels whereas Canvas uses device pixels.
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = canvasWidth * dpr;
+    canvas.height = canvasHeight * dpr;
+    canvas.style.width = canvasWidth + 'px';
+    canvas.style.height = canvasHeight + 'px';
+    ctx.scale(dpr, dpr);
     const ballImage = new Image();
     ballImage.src = '../assets/images/ball.png';
 
