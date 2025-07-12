@@ -25,8 +25,13 @@
     const ballImage = new Image();
     ballImage.src = '../assets/images/ball.png';
 
-    const duration = 1000; // 1 second
-    let startTime = null;
+    const speed = 500; // pixels per second - all balls will move at this speed
+    const triggerDistance = 50; // pixels - next ball starts when previous ball travels this far
+    const gapBetweenBalls = 3; // 3px gap between stopped balls
+    const numberOfBalls = 9;
+    
+    let balls = [];
+    let animationId = null;
 
     // To ensure the number is upright at the end, we calculate an initial
     // rotation offset. This makes the total rotation a multiple of 2 * PI.
@@ -38,14 +43,33 @@
       return rotationOffset;
     }
 
-    function getBallData() {
+    function initializeBalls() {
       const startX = 10;
       const startY = 10;
-      const targetX = canvasWidth - ballRadius * 2 - 10;
-      const targetY = 10;
-      const rotationOffset = getRotationOffset({ targetX, startX });
-      const number = Math.floor(Math.random() * 99) + 1;
-      return { startX, startY, targetX, targetY, rotationOffset, number };
+      
+      // Calculate where each ball should stop
+      const availableWidth = canvasWidth - 20;
+      const stopX = canvasWidth - ballRadius * 2 - 10;
+      
+      for (let i = 0; i < numberOfBalls; i++) {
+        // First ball goes to rightmost position, subsequent balls go left
+        const targetX = stopX - i * (ballRadius * 2 + gapBetweenBalls);
+        const targetY = startY;
+        const rotationOffset = getRotationOffset({ targetX, startX });
+        const number = Math.floor(Math.random() * 99) + 1;
+        
+        balls.push({
+          startX,
+          startY,
+          targetX,
+          targetY,
+          rotationOffset,
+          number,
+          startTime: null,
+          isAnimating: false,
+          isComplete: false
+        });
+      }
     }
 
     function drawBall({ newX, newY, rotationAngle, number }) {
@@ -65,25 +89,54 @@
       ctx.restore();
     }
 
-    function animate(timestamp) {
-      if (!startTime) startTime = timestamp;
-      // Calculate rotation based on the distance traveled
-      const elapsed = timestamp - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const { startX, startY, targetX, targetY, rotationOffset, number } = getBallData();
-      const newX = startX + (targetX - startX) * progress;
-      const newY = startY + (targetY - startY) * progress;
-      const traveledDistance = newX - startX;
-      const rotationAngle = (traveledDistance / ballRadius) + rotationOffset;
-
+    function animate() {
       ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-      drawBall({ newX, newY, rotationAngle, number });
+      
+      balls.forEach((ball, index) => {
+        if (ball.isComplete) {
+          // Draw completed balls at their final position
+          drawBall({
+            newX: ball.targetX,
+            newY: ball.targetY,
+            rotationAngle: 0,
+            number: ball.number
+          });
+        } else if (ball.isAnimating) {
+          // Draw animating ball
+          if (!ball.startTime) ball.startTime = performance.now();
+          const elapsed = performance.now() - ball.startTime;
+          const distance = ball.targetX - ball.startX;
+          const duration = distance / speed * 1000; // Convert to milliseconds
+          const progress = Math.min(elapsed / duration, 1);
+          const newX = ball.startX + (ball.targetX - ball.startX) * progress;
+          const newY = ball.startY + (ball.targetY - ball.startY) * progress;
+          const traveledDistance = newX - ball.startX;
+          const rotationAngle = (traveledDistance / ballRadius) + ball.rotationOffset;
+          
+          drawBall({ newX, newY, rotationAngle, number: ball.number });
+          
+          // Check if this ball has traveled specified distance and should trigger the next ball
+          if (traveledDistance >= triggerDistance && index < numberOfBalls - 1) {
+            balls[index + 1].isAnimating = true;
+          }
+          
+          if (progress >= 1) {
+            ball.isAnimating = false;
+            ball.isComplete = true;
+          }
+        }
+      });
 
-      if (progress < 1) requestAnimationFrame(animate);
+      if (balls.some(ball => ball.isAnimating)) {
+        animationId = requestAnimationFrame(animate);
+      }
     }
 
     ballImage.onload = () => {
-      requestAnimationFrame(animate);
+      initializeBalls();
+      // Start the first ball
+      balls[0].isAnimating = true;
+      animate();
     };
   </script>
 </body>
