@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Gradient Text</title>
+  <meta name="viewport" content="width=device-width" />
+  <style>
+    html, body {
+      height: 100vh;
+    }
+    canvas {
+      border: 1px solid black;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script>
+    canvas.width = 400;
+    canvas.height = 200;
+    const ballRadius = 15;
+    const ctx = canvas.getContext('2d');
+    const ballImage = new Image();
+    ballImage.onload = animate;
+    ballImage.src = '../assets/images/ball.png';
+    function animate() {
+      ctx.drawImage(ballImage, 10, 10, ballRadius * 2, ballRadius * 2);
+      ctx.font = '12px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(23, 10 + ballRadius, 10 + ballRadius);
+    }
+  </script>
+</body>
+</html>
