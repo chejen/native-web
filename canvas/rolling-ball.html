@@ -16,20 +16,54 @@
 <body>
   <canvas id="canvas"></canvas>
   <script>
-    canvas.width = 400;
-    canvas.height = 200;
+    const canvasWidth = 400;
+    const canvasHeight = 200;
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
     const ballRadius = 15;
     const ctx = canvas.getContext('2d');
     const ballImage = new Image();
-    ballImage.onload = animate;
     ballImage.src = '../assets/images/ball.png';
-    function animate() {
-      ctx.drawImage(ballImage, 10, 10, ballRadius * 2, ballRadius * 2);
+
+    const startX = 10;
+    const startY = 10;
+    const targetX = canvasWidth - ballRadius * 2 - 10;
+    const targetY = 10;
+    const duration = 1000; // 1 second
+    let startTime = null;
+
+    function animate(timestamp) {
+      if (!startTime) startTime = timestamp;
+      // Calculate rotation based on the distance traveled
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const currentX = startX + (targetX - startX) * progress;
+      const currentY = startY + (targetY - startY) * progress;
+      const traveledDistance = currentX - startX;
+      const rotationAngle = traveledDistance / ballRadius;
+
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      ctx.save();
+
+      // Translate the context to the ball's center and rotate it
+      ctx.translate(currentX + ballRadius, currentY + ballRadius);
+      ctx.rotate(rotationAngle);
+
+      ctx.drawImage(ballImage, -ballRadius, -ballRadius, ballRadius * 2, ballRadius * 2);
+
       ctx.font = '12px Arial';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(23, 10 + ballRadius, 10 + ballRadius);
+      ctx.fillText(23, 0, 0);
+
+      ctx.restore();
+
+      if (progress < 1) requestAnimationFrame(animate);
     }
+
+    ballImage.onload = () => {
+      requestAnimationFrame(animate);
+    };
   </script>
 </body>
 </html>
