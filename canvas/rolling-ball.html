@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Gradient Text</title>
+  <title>Rolling ball</title>
   <meta name="viewport" content="width=device-width" />
   <style>
     html, body {
@@ -25,36 +25,34 @@
     const ballImage = new Image();
     ballImage.src = '../assets/images/ball.png';
 
-    const startX = 10;
-    const startY = 10;
-    const targetX = canvasWidth - ballRadius * 2 - 10;
-    const targetY = 10;
-
-    // To ensure the number is upright at the end, we calculate an initial
-    // rotation offset. This makes the total rotation a multiple of 2 * PI.
-    const totalTravel = targetX - startX;
-    const finalRotation = totalTravel / ballRadius;
-    const uprightRotation = Math.ceil(finalRotation / (2 * Math.PI)) * (2 * Math.PI);
-    const rotationOffset = uprightRotation - finalRotation;
-
     const duration = 1000; // 1 second
     let startTime = null;
 
-    function animate(timestamp) {
-      if (!startTime) startTime = timestamp;
-      // Calculate rotation based on the distance traveled
-      const elapsed = timestamp - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const currentX = startX + (targetX - startX) * progress;
-      const currentY = startY + (targetY - startY) * progress;
-      const traveledDistance = currentX - startX;
-      const rotationAngle = (traveledDistance / ballRadius) + rotationOffset;
+    // To ensure the number is upright at the end, we calculate an initial
+    // rotation offset. This makes the total rotation a multiple of 2 * PI.
+    function getRotationOffset({ targetX, startX }) {
+      const totalTravel = targetX - startX;
+      const finalRotation = totalTravel / ballRadius;
+      const originalRotation = totalTravel / (2 * Math.PI * ballRadius);
+      const rotationOffset = (Math.ceil(originalRotation) - originalRotation) * 2 * Math.PI;
+      return rotationOffset;
+    }
 
-      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    function getBallData() {
+      const startX = 10;
+      const startY = 10;
+      const targetX = canvasWidth - ballRadius * 2 - 10;
+      const targetY = 10;
+      const rotationOffset = getRotationOffset({ targetX, startX });
+      const number = Math.floor(Math.random() * 99) + 1;
+      return { startX, startY, targetX, targetY, rotationOffset, number };
+    }
+
+    function drawBall({ newX, newY, rotationAngle, number }) {
       ctx.save();
 
       // Translate the context to the ball's center and rotate it
-      ctx.translate(currentX + ballRadius, currentY + ballRadius);
+      ctx.translate(newX + ballRadius, newY + ballRadius);
       ctx.rotate(rotationAngle);
 
       ctx.drawImage(ballImage, -ballRadius, -ballRadius, ballRadius * 2, ballRadius * 2);
@@ -62,9 +60,24 @@
       ctx.font = '12px Arial';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(23, 0, 0);
+      ctx.fillText(number, 0, 0);
 
       ctx.restore();
+    }
+
+    function animate(timestamp) {
+      if (!startTime) startTime = timestamp;
+      // Calculate rotation based on the distance traveled
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const { startX, startY, targetX, targetY, rotationOffset, number } = getBallData();
+      const newX = startX + (targetX - startX) * progress;
+      const newY = startY + (targetY - startY) * progress;
+      const traveledDistance = newX - startX;
+      const rotationAngle = (traveledDistance / ballRadius) + rotationOffset;
+
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      drawBall({ newX, newY, rotationAngle, number });
 
       if (progress < 1) requestAnimationFrame(animate);
     }
