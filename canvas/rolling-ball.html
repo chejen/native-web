@@ -49,6 +49,7 @@
 
     const speed = 500; // pixels per second - all balls will move at this speed
     const triggerDistance = 50; // pixels - next ball starts when previous ball travels this far
+    const slowdownDistance = 80; // pixels - balls gradually stop when they are this far from their target stopped position
     const gapBetweenBalls = 3; // 3px gap between stopped balls
     const numberOfBalls = 9;
     
@@ -141,8 +142,32 @@
           if (!ball.startTime) ball.startTime = performance.now();
           const elapsed = performance.now() - ball.startTime;
           const distance = ball.targetX - ball.startX;
-          const duration = distance / speed * 1000; // Convert to milliseconds
-          const progress = Math.min(elapsed / duration, 1);
+          const duration = distance / speed * 1000; // Reference duration at constant speed
+
+          const slowdownStartProgress = Math.max(0, (distance - slowdownDistance) / distance);
+          
+          const potentialProgress = elapsed / duration;
+          let progress;
+
+          if (potentialProgress < slowdownStartProgress) {
+            progress = potentialProgress;
+          } else {
+            const fullSpeedDuration = duration * slowdownStartProgress;
+            const elapsedInSlowdown = elapsed - fullSpeedDuration;
+            
+            const originalSlowdownDuration = duration * (1 - slowdownStartProgress);
+            // Make the slowdown last longer to simulate deceleration
+            const newSlowdownDuration = originalSlowdownDuration * 2.5;
+            
+            const progressInSlowdown = Math.min(1, elapsedInSlowdown / newSlowdownDuration);
+            
+            // Apply quadratic ease-out for a smooth stop
+            const easedProgressInSlowdown = progressInSlowdown * (2 - progressInSlowdown);
+            
+            progress = slowdownStartProgress + (1 - slowdownStartProgress) * easedProgressInSlowdown;
+          }
+          
+          progress = Math.min(progress, 1);
           const newX = ball.startX + (ball.targetX - ball.startX) * progress;
           const newY = ball.startY + (ball.targetY - ball.startY) * progress;
           const traveledDistance = newX - ball.startX;
