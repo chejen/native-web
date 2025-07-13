@@ -92,7 +92,7 @@
 
     async function drawTextInSecondLine(text) {
       ctx.font = '40px Chicalo';
-      ctx.textAlign = 'center';
+      ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
       ctx.letterSpacing = '8px';
       ctx.fillStyle = '#f8f8f8';
@@ -115,7 +115,7 @@
       // draw all the elements
       ctx.fillText(
         leadingString,
-        combinedStartX + leadingStringWidth / 2,
+        combinedStartX,
         targetY,
         canvasWidth
       );
@@ -135,7 +135,7 @@
 
       ctx.fillText(
         tailingString,
-        combinedStartX + leadingStringWidth + imageWidth + padding + tailingStringWidth / 2,
+        combinedStartX + leadingStringWidth + imageWidth + padding,
         targetY,
         canvasWidth
       );
