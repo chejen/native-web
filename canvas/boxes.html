@@ -8,9 +8,6 @@
     html, body {
       height: 100vh;
     }
-    canvas {
-      border: 1px solid #D2D9FB;
-    }
     button {
       margin-top: 20px;
       padding: 10px 20px;
@@ -23,6 +20,10 @@
   <h1>Boxes</h1>
   <canvas id="canvas"></canvas>
   <button id="fadeButton">Fade First Rectangle</button>
+
+  <br />
+  <canvas id="gridCanvas"></canvas>
+
   <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
@@ -322,6 +323,43 @@
 
       requestAnimationFrame(drawRectangles);
     });
+
+
+    // Second canvas (grid layout)
+    const gridCanvas = document.getElementById('gridCanvas');
+    const gridCtx = gridCanvas.getContext('2d');
+    const rows = 3;
+    const columns = 9;
+    const gridPadding = 1;
+    const cellPadding = 4;
+    const cellBorderWidth = 1;
+    const gridWidth = 272;
+    const gridHeight = 68;
+    const gridCellWidth = (gridWidth - gridPadding * 2 - cellPadding * (columns - 1)) / columns;
+    const gridCellHeight = (gridHeight - gridPadding * 2 - cellPadding * (rows - 1)) / rows;
+
+    gridCanvas.setAttribute('width', gridWidth);
+    gridCanvas.setAttribute('height', gridHeight);
+    
+    gridCtx.fillStyle = '#D2D9FB';
+    gridCtx.fillRect(0, 0, gridWidth, gridHeight);
+
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < columns; col++) {
+        const x = gridPadding + col * (gridCellWidth + cellPadding);
+        const y = gridPadding + row * (gridCellHeight + cellPadding);
+
+        gridCtx.fillStyle = 'pink';
+        gridCtx.fillRect(x, y, gridCellWidth, gridCellHeight);
+        gridCtx.strokeRect(x, y, gridCellWidth, gridCellHeight);
+
+        gridCtx.font = '12px Roboto, Arial';
+        gridCtx.textAlign = 'center';
+        gridCtx.textBaseline = 'middle';
+        gridCtx.fillStyle = 'black';
+        gridCtx.fillText(row * columns + col, x + gridCellWidth / 2, y + gridCellHeight / 2);
+      }
+    }
   </script>
 </body>
 </html>
