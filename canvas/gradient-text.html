@@ -32,29 +32,37 @@
   <h1>Gradient Text</h1>
   <script>
     const canvas = document.createElement('canvas');
-    canvas.setAttribute('width', '480');
-    canvas.setAttribute('height', '120');
+    const dpr = window.devicePixelRatio || 1;
+    const canvasWidth = 480;
+    const canvasHeight = 120;
+    canvas.setAttribute('width', canvasWidth * dpr);
+    canvas.setAttribute('height', canvasHeight * dpr);
+    canvas.style.width = canvasWidth + 'px';
+    canvas.style.height = canvasHeight + 'px';
     const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
 
-    function drawText(text, canvasWidth, canvasHeight) {
+    function drawText(text) {
       ctx.font = '90px Chicalo';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.letterSpacing = '8px';
 
       // Set shadow
+      // Canvas shadow properties (shadowOffsetX, shadowOffsetY, shadowBlur) are applied at the device pixel level before the context transformation matrix is applied.
+      // This means they don't get scaled along with your content when you use ctx.scale(dpr, dpr).
       ctx.shadowColor = '#000';
-      ctx.shadowOffsetX = 2;
-      ctx.shadowOffsetY = 3;
-      ctx.shadowBlur = 3; // adjust this for a softer shadow
+      ctx.shadowOffsetX = 2 * dpr;
+      ctx.shadowOffsetY = 3 * dpr;
+      ctx.shadowBlur = 3 * dpr; // adjust this for a softer shadow
 
       // Stroke
-      const gradientStrokeStyle = ctx.createLinearGradient(0, 20, 0, canvasHeight - 40);
+      const gradientStrokeStyle = ctx.createLinearGradient(0, 40, 0, canvasHeight - 40);
       gradientStrokeStyle.addColorStop(0, '#3741AD');
       gradientStrokeStyle.addColorStop(1, '#831110');
       ctx.strokeStyle = gradientStrokeStyle;
       ctx.lineWidth = 6;
-      ctx.strokeText(text, canvasWidth / 2, canvasHeight / 2 + 10);
+      ctx.strokeText(text, canvasWidth / 2, canvasHeight / 2 + 10, canvasWidth);
 
       // Text
       const gradientFillStyle = ctx.createLinearGradient(0, 0, 0, canvasHeight);
@@ -62,7 +70,7 @@
       gradientFillStyle.addColorStop(0.5858, '#FFD105');
       gradientFillStyle.addColorStop(0.9401, '#F8AA00');
       ctx.fillStyle = gradientFillStyle;
-      ctx.fillText(text, canvasWidth / 2, canvasHeight / 2 + 10);
+      ctx.fillText(text, canvasWidth / 2, canvasHeight / 2 + 10, canvasWidth);
     }
 
     function createButton() {
@@ -83,7 +91,7 @@
     }
 
     document.fonts.ready.then(function () {
-      drawText('9453', canvas.width, canvas.height);
+      drawText('9543');
       document.body.appendChild(canvas);
       document.body.appendChild(document.createElement('br'));
       createButton();
