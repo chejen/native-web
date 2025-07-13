@@ -14,6 +14,10 @@
       font-size: 16px;
       cursor: pointer;
     }
+    #gridCanvas {
+      transform-origin: top left;
+      transform: scale(0.5);
+    }
   </style>
 </head>
 <body>
@@ -326,6 +330,7 @@
 
 
     // Second canvas (grid layout)
+    const dpr = window.devicePixelRatio || 1;
     const gridCanvas = document.getElementById('gridCanvas');
     const gridCtx = gridCanvas.getContext('2d');
     const rows = 3;
@@ -338,8 +343,11 @@
     const gridCellWidth = (gridWidth - gridPadding * 2 - cellPadding * (columns - 1)) / columns;
     const gridCellHeight = (gridHeight - gridPadding * 2 - cellPadding * (rows - 1)) / rows;
 
-    gridCanvas.setAttribute('width', gridWidth);
-    gridCanvas.setAttribute('height', gridHeight);
+    gridCanvas.setAttribute('width', gridWidth * dpr);
+    gridCanvas.setAttribute('height', gridHeight * dpr);
+    gridCanvas.style.width = gridWidth + 'px';
+    gridCanvas.style.height = gridHeight + 'px';
+    gridCtx.scale(dpr, dpr);
     
     gridCtx.fillStyle = '#D2D9FB';
     gridCtx.fillRect(0, 0, gridWidth, gridHeight);
@@ -351,12 +359,13 @@
 
         gridCtx.fillStyle = 'pink';
         gridCtx.fillRect(x, y, gridCellWidth, gridCellHeight);
+        gridCtx.strokeStyle = 'purple';
         gridCtx.strokeRect(x, y, gridCellWidth, gridCellHeight);
 
         gridCtx.font = '12px Roboto, Arial';
         gridCtx.textAlign = 'center';
         gridCtx.textBaseline = 'middle';
-        gridCtx.fillStyle = 'black';
+        gridCtx.fillStyle = 'purple';
         gridCtx.fillText(row * columns + col, x + gridCellWidth / 2, y + gridCellHeight / 2);
       }
     }
