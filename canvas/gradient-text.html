@@ -34,7 +34,7 @@
     const canvas = document.createElement('canvas');
     const dpr = window.devicePixelRatio || 1;
     const canvasWidth = 480;
-    const canvasHeight = 120;
+    const canvasHeight = 240;
     canvas.setAttribute('width', canvasWidth * dpr);
     canvas.setAttribute('height', canvasHeight * dpr);
     canvas.style.width = canvasWidth + 'px';
@@ -57,20 +57,20 @@
       ctx.shadowBlur = 3 * dpr; // adjust this for a softer shadow
 
       // Stroke
-      const gradientStrokeStyle = ctx.createLinearGradient(0, 40, 0, canvasHeight - 40);
+      const gradientStrokeStyle = ctx.createLinearGradient(0, 40, 0, canvasHeight / 2 - 40);
       gradientStrokeStyle.addColorStop(0, '#3741AD');
       gradientStrokeStyle.addColorStop(1, '#831110');
       ctx.strokeStyle = gradientStrokeStyle;
       ctx.lineWidth = 6;
-      ctx.strokeText(text, canvasWidth / 2, canvasHeight / 2 + 10, canvasWidth);
+      ctx.strokeText(text, canvasWidth / 2, canvasHeight / 4 + 10, canvasWidth);
 
       // Text
-      const gradientFillStyle = ctx.createLinearGradient(0, 0, 0, canvasHeight);
+      const gradientFillStyle = ctx.createLinearGradient(0, 0, 0, canvasHeight / 2 - 40);
       gradientFillStyle.addColorStop(0.1004, '#FBFAF4');
       gradientFillStyle.addColorStop(0.5858, '#FFD105');
       gradientFillStyle.addColorStop(0.9401, '#F8AA00');
       ctx.fillStyle = gradientFillStyle;
-      ctx.fillText(text, canvasWidth / 2, canvasHeight / 2 + 10, canvasWidth);
+      ctx.fillText(text, canvasWidth / 2, canvasHeight / 4 + 10, canvasWidth);
     }
 
     function createButton() {
@@ -90,8 +90,60 @@
       document.body.appendChild(button);
     }
 
+    async function drawTextInSecondLine(text) {
+      ctx.font = '40px Chicalo';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.letterSpacing = '8px';
+      ctx.fillStyle = '#f8f8f8';
+
+      const leadingString = '(';
+      const tailingString = `-${text})`;
+      const padding = 12;
+      const imageWidth = 40;
+      const imageHeight = 40;
+      const targetY = canvasHeight / 2 + 20;
+
+      // measure the width for different elements
+      // (measureText returns the width of a segment of inline text in CSS pixels)
+      const leadingStringWidth = ctx.measureText(leadingString).width;
+      const tailingStringWidth = ctx.measureText(tailingString).width;
+      const combinedWidth =
+        leadingStringWidth + imageWidth + padding + tailingStringWidth;
+      const combinedStartX = (canvasWidth - combinedWidth) / 2;
+
+      // draw all the elements
+      ctx.fillText(
+        leadingString,
+        combinedStartX + leadingStringWidth / 2,
+        targetY,
+        canvasWidth
+      );
+
+      const img = new Image();
+      await new Promise((resolve) => {
+        img.onload = () => resolve();
+        img.src = '../assets/images/gift.svg';
+      });
+      ctx.drawImage(
+        img,
+        combinedStartX + leadingStringWidth,
+        targetY - imageHeight / 2 - 5,
+        imageWidth,
+        imageHeight,
+      );
+
+      ctx.fillText(
+        tailingString,
+        combinedStartX + leadingStringWidth + imageWidth + padding + tailingStringWidth / 2,
+        targetY,
+        canvasWidth
+      );
+    }
+
     document.fonts.ready.then(function () {
       drawText('9543');
+      drawTextInSecondLine('6800');
       document.body.appendChild(canvas);
       document.body.appendChild(document.createElement('br'));
       createButton();
