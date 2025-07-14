@@ -121,7 +121,7 @@
       if (!task.processingStartTime) task.processingStartTime = now;
       
       const elapsed = now - task.processingStartTime;
-      if (elapsed > task.durationInMilliSeconds) {
+      if (!task.loop && elapsed > task.durationInMilliSeconds) {
         cell.backgroundLayerOptions = undefined;
         return;
       }
@@ -145,11 +145,11 @@
           };
           break;
         case 'cycle':
-          cell.backgroundLayerOptions = {
-            // Where the snake starts its cycle (`-` means clockwise for the snake`)
-            lineDashOffset: -progress * CYCLE_DIAMETER - 30,
-          };
-          break;
+           cell.backgroundLayerOptions = {
+             // Where the snake starts its cycle (`-` means clockwise for the snake`)
+             lineDashOffset: -progress * CYCLE_DIAMETER - 30,
+           };
+           break;
         default:
           break;
       }
@@ -417,7 +417,8 @@
 
       cells[6].taskStack.push({
         taskType: 'cycle',
-        durationInMilliSeconds: 1000,
+        durationInMilliSeconds: 1000, // 1 second per lap
+        loop: true, // Loop infinitely
         cellStyle: 'ONE_LEFT',
       });
 
