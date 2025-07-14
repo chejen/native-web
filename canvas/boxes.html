@@ -34,6 +34,8 @@
     const fadeButton = document.getElementById('fadeButton');
     const CELL_WIDTH = 30;
     const CELL_HEIGHT = 30;
+    const CYCLE_LINE_WIDTH = 2;
+    const CYCLE_DIAMETER = 2 * (CELL_WIDTH + CELL_HEIGHT + 2 * CYCLE_LINE_WIDTH);
     const cellStyles = Object.freeze({
       INIT: {
         dashed: true,
@@ -98,6 +100,12 @@
       number: 89,
       cellStyle: 'BINGO',
       taskStack: [],
+    }, {
+      x: 250,
+      y: 10,
+      number: 57,
+      cellStyle: 'ONE_LEFT',
+      taskStack: [],
     }];
 
     function beforeRenderCell(cell) {
@@ -109,44 +117,88 @@
 
       if (task.taskType === 'updateCellType') return;
 
-      if (['fadeOut', 'fadeIn', 'fadedZoom'].includes(task.taskType)) {
-        const now = Date.now();
-        if (!task.processingStartTime) task.processingStartTime = now;
+      const now = performance.now();
+      if (!task.processingStartTime) task.processingStartTime = now;
+      
+      const elapsed = now - task.processingStartTime;
+      if (elapsed > task.durationInMilliSeconds) {
+        cell.backgroundLayerOptions = undefined;
+        return;
+      }
+      
+      const progress = elapsed / task.durationInMilliSeconds;
+      // reset both foreground and background cells
+      cell.opacity = 1;
+      cell.backgroundLayerOptions = undefined;
+      switch (task.taskType) {
+        case 'fadeIn':
+          cell.opacity = progress;
+          break;
+        case 'fadeOut':
+          cell.opacity = 1 - progress;
+          break;
+        case 'fadedZoom':
+          // fade out while scaling up
+          cell.backgroundLayerOptions = {
+            opacity: 1 - progress,
+            scale: 1 + (task.scale - 1) * progress,
+          };
+          break;
+        case 'cycle':
+          cell.backgroundLayerOptions = {
+            // Where the snake starts its cycle (`-` means clockwise for the snake`)
+            lineDashOffset: -progress * CYCLE_DIAMETER - 30,
+          };
+          break;
+        default:
+          break;
+      }
 
-        const elapsed = now - task.processingStartTime;
-        if (elapsed > task.durationInMilliSeconds) return;
-
-        if (task.taskType === 'fadeIn') {
-          cell.opacity = elapsed / task.durationInMilliSeconds;
-        } else if (task.taskType === 'fadeOut') {
-          cell.opacity = 1 - elapsed / task.durationInMilliSeconds;
-        } else if (task.taskType === 'fadedZoom') {
-          // Fade out while scaling up
-          cell.opacity = 1 - elapsed / task.durationInMilliSeconds;
-          cell.scale = 1 + (task.scale - 1) * (elapsed / task.durationInMilliSeconds);
-        }
-
+      if (['fadeOut', 'fadeIn', 'fadedZoom', 'cycle'].includes(task.taskType)) {
         taskStack.push(task);
       }
     }
 
-    function renderCell(cell, isZooming = false) {
+    function renderCell(cell, backgroundLayerOptions) {
       ctx.save();
       ctx.globalAlpha = cell.opacity ?? 1;
 
-      // For fadedZoom animation, there're two layers,
-      // one is the original cell, the other is the zoomed cell.
-      if (cell.scale) {
-        if (isZooming) {
-          // zoomed cell
+      // For some animations, there're two layers.
+
+      // Handle background layer first.
+      if (backgroundLayerOptions) {
+        if (backgroundLayerOptions.scale) {
+          ctx.globalAlpha = backgroundLayerOptions.opacity ?? 1;
           const centerX = cell.x + CELL_WIDTH / 2;
           const centerY = cell.y + CELL_HEIGHT / 2;
           ctx.translate(centerX, centerY);
-          ctx.scale(cell.scale ?? 1, cell.scale ?? 1);
+          ctx.scale(backgroundLayerOptions.scale ?? 1, backgroundLayerOptions.scale ?? 1);
           ctx.translate(-centerX, -centerY);
-        } else {
-          // original cell
-          ctx.globalAlpha = 1;
+        }
+        if (backgroundLayerOptions.lineDashOffset) {
+          ctx.lineWidth = CYCLE_LINE_WIDTH;
+          ctx.strokeStyle = '#FFFE67';
+          ctx.lineDashOffset = backgroundLayerOptions.lineDashOffset;
+          const firstDashSegmentLength = CELL_WIDTH + 10;
+          drawRoundedRect({
+            ...cell,
+            ...cellStyles[cell.cellStyle],
+            x: cell.x - CYCLE_LINE_WIDTH / 2,
+            y: cell.y - CYCLE_LINE_WIDTH / 2,
+            width: CELL_WIDTH + CYCLE_LINE_WIDTH,
+            height: CELL_HEIGHT + CYCLE_LINE_WIDTH,
+            filled: false,
+            dashed: true,
+            lineDash: [
+              firstDashSegmentLength,
+              // CYCLE_DIAMETER
+              CYCLE_DIAMETER - firstDashSegmentLength,
+            ]
+          });
+
+          // No extra rect and stroke needed. Return immediately.
+          ctx.restore();
+          return;
         }
       }
 
@@ -158,7 +210,7 @@
           ctx.strokeStyle = cell.cellStyle === 'MARKED' ? '#EA8C15' : '#FFFFFF';
           drawRoundedRect({ ...cell, ...cellStyles[cell.cellStyle] });
           ctx.fillStyle = '#933807';
-          if (!isZooming) drawNumber(cell);
+          if (!backgroundLayerOptions) drawNumber(cell);
           break;
 
         case 'ONE_LEFT':
@@ -166,7 +218,7 @@
           ctx.strokeStyle = '#FFAC43';
           drawRoundedRect({ ...cell, ...cellStyles[cell.cellStyle] });
           ctx.fillStyle = '#FF5900';
-          drawNumber(cell);
+          if (!backgroundLayerOptions) drawNumber(cell);
           break;
 
         case 'INIT':
@@ -174,7 +226,7 @@
           ctx.strokeStyle = '#839EE6';
           drawRoundedRect({ ...cell, ...cellStyles[cell.cellStyle] });
           ctx.fillStyle = '#2B4995';
-          drawNumber(cell);
+          if (!backgroundLayerOptions) drawNumber(cell);
           break;
 
         default:
@@ -192,6 +244,8 @@
       radius = 6,
       glowOffset = 0,
       glowRBG = [],
+      lineDash,
+      filled = true,
       dashed = false,
       clipped = false,
     }) {
@@ -207,13 +261,13 @@
       ctx.quadraticCurveTo(x, y, x + radius, y);
       ctx.closePath();
 
-      ctx.setLineDash(dashed ? [4, 4] : []);
+      ctx.setLineDash(dashed ? lineDash || [4, 4] : []);
 
       if (clipped) return ctx.clip();
 
-      ctx.fill();
+      if (filled) ctx.fill();
 
-      if (glowOffset && glowRBG.length) {
+      if (filled && glowOffset && glowRBG.length) {
         ctx.save();
         ctx.clip();
 
@@ -259,7 +313,7 @@
       let isTasksCompleted = true;
       cells.forEach(cell => {
         beforeRenderCell(cell);
-        if (cell.scale) renderCell(cell, true);
+        if (cell.backgroundLayerOptions) renderCell(cell, cell.backgroundLayerOptions);
         renderCell(cell);
         if (cell.taskStack?.length) isTasksCompleted = false;
       });
@@ -359,6 +413,12 @@
         taskType: 'fadeOut',
         durationInMilliSeconds: 50,
         cellStyle: 'INIT',
+      });
+
+      cells[6].taskStack.push({
+        taskType: 'cycle',
+        durationInMilliSeconds: 1000,
+        cellStyle: 'ONE_LEFT',
       });
 
       requestAnimationFrame(drawRectangles);
