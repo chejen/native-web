@@ -41,6 +41,9 @@
       MARKED: {
         dashed: false,
       },
+      BINGO: {
+        dashed: false,
+      },
       ONE_LEFT_PLACEHOLDER: {
         dashed: false,
       },
@@ -83,6 +86,18 @@
       number: 45,
       cellStyle: 'ONE_LEFT',
       taskStack: [],
+    }, {
+      x: 170,
+      y: 10,
+      number: 12,
+      cellStyle: 'INIT',
+      taskStack: [],
+    }, {
+      x: 210,
+      y: 10,
+      number: 89,
+      cellStyle: 'BINGO',
+      taskStack: [],
     }];
 
     function beforeRenderCell(cell) {
@@ -94,31 +109,56 @@
 
       if (task.taskType === 'updateCellType') return;
 
-      if (['fadeOut', 'fadeIn'].includes(task.taskType)) {
+      if (['fadeOut', 'fadeIn', 'fadedZoom'].includes(task.taskType)) {
         const now = Date.now();
         if (!task.processingStartTime) task.processingStartTime = now;
 
         const elapsed = now - task.processingStartTime;
         if (elapsed > task.durationInMilliSeconds) return;
 
-        cell.opacity = task.taskType === 'fadeOut'
-          ? 1 - elapsed / task.durationInMilliSeconds
-          : elapsed / task.durationInMilliSeconds;
+        if (task.taskType === 'fadeIn') {
+          cell.opacity = elapsed / task.durationInMilliSeconds;
+        } else if (task.taskType === 'fadeOut') {
+          cell.opacity = 1 - elapsed / task.durationInMilliSeconds;
+        } else if (task.taskType === 'fadedZoom') {
+          // Fade out while scaling up
+          cell.opacity = 1 - elapsed / task.durationInMilliSeconds;
+          cell.scale = 1 + (task.scale - 1) * (elapsed / task.durationInMilliSeconds);
+        }
+
         taskStack.push(task);
       }
     }
 
-    function renderCell(cell) {
+    function renderCell(cell, isZooming = false) {
+      ctx.save();
       ctx.globalAlpha = cell.opacity ?? 1;
 
+      // For fadedZoom animation, there're two layers,
+      // one is the original cell, the other is the zoomed cell.
+      if (cell.scale) {
+        if (isZooming) {
+          // zoomed cell
+          const centerX = cell.x + CELL_WIDTH / 2;
+          const centerY = cell.y + CELL_HEIGHT / 2;
+          ctx.translate(centerX, centerY);
+          ctx.scale(cell.scale ?? 1, cell.scale ?? 1);
+          ctx.translate(-centerX, -centerY);
+        } else {
+          // original cell
+          ctx.globalAlpha = 1;
+        }
+      }
+
       switch (cell.cellStyle) {
+        case 'BINGO':
         case 'MARKED':
         case 'ONE_LEFT_PLACEHOLDER':
-          ctx.fillStyle = '#FFAC43';
-          ctx.strokeStyle = cell.cellStyle === 'MARKED' ? '#EA8C15' : '#fff';
+          ctx.fillStyle = cell.cellStyle === 'BINGO' ? '#FFD043' : '#FFAC43';
+          ctx.strokeStyle = cell.cellStyle === 'MARKED' ? '#EA8C15' : '#FFFFFF';
           drawRoundedRect({ ...cell, ...cellStyles[cell.cellStyle] });
           ctx.fillStyle = '#933807';
-          drawNumber(cell);
+          if (!isZooming) drawNumber(cell);
           break;
 
         case 'ONE_LEFT':
@@ -141,23 +181,7 @@
           break;
       }
 
-      ctx.globalAlpha = 1; // Reset opacity
-    }
-
-    function drawRectangles() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before redrawing
-      ctx.fillStyle = '#D2D9FB';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      let isTasksCompleted = true;
-      cells.forEach(cell => {
-        beforeRenderCell(cell);
-        renderCell(cell);
-
-        if (cell.taskStack?.length) isTasksCompleted = false;
-      });
-
-      if (!isTasksCompleted) requestAnimationFrame(drawRectangles);
+      ctx.restore();
     }
 
     function drawRoundedRect({
@@ -235,6 +259,7 @@
       let isTasksCompleted = true;
       cells.forEach(cell => {
         beforeRenderCell(cell);
+        if (cell.scale) renderCell(cell, true);
         renderCell(cell);
         if (cell.taskStack?.length) isTasksCompleted = false;
       });
@@ -323,6 +348,17 @@
         taskType: 'fadeOut',
         durationInMilliSeconds: 30,
         cellStyle: 'ONE_LEFT',
+      });
+
+      cells[4].taskStack.push({
+        taskType: 'fadedZoom',
+        scale: 1.6,
+        durationInMilliSeconds: 250,
+        cellStyle: 'BINGO',
+      }, {
+        taskType: 'fadeOut',
+        durationInMilliSeconds: 50,
+        cellStyle: 'INIT',
       });
 
       requestAnimationFrame(drawRectangles);
