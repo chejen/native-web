@@ -7,6 +7,7 @@
     <style>
       body {
         display: flex;
+        gap: 5px;
         justify-content: center;
       }
       h3 {
@@ -19,7 +20,7 @@
         padding-right: 10px;
       }
       code {
-        color: orange;
+        color: salmon;
       }
       .container {
         width: 300px;
@@ -44,6 +45,16 @@
       }
       .pre-line {
         white-space: pre-line;
+      }
+      .flex-wrap {
+        flex-wrap: wrap;
+      }
+      .sample-2-1 {
+        border: 1px solid white;
+        display: flex;
+        margin: 3px 0;
+        padding: 3px;
+        width: 100px;
       }
     </style>
   </head>
@@ -77,6 +88,35 @@
       <script>
         foo.textContent = 'hello\n\world';
       </script>
+    </div>
+    <div class="container">
+      <h3>Texts in multi-wrappers</h3>
+      <code>flex-wrap: wrap</code>
+      <div class="sample-2-1 flex-wrap">
+        <span>Choice</span>
+        <span>:&nbsp;</span>
+        <span>very_very_long_text</span>
+      </div>
+
+      <h3>Texts in multi-wrappers</h3>
+      <code>overflow-wrap: break-word</code>
+      <div class="sample-2-1">
+        <span>Choice</span>
+        <span>:&nbsp;</span>
+        <span class="break-word">very_very_long_text</span>
+      </div>
+
+      <h3>Texts in multi-wrappers</h3>
+      <code>flex-wrap: wrap</code>
+      <br>
+      <code>overflow-wrap: break-word</code>
+      <br>
+      <code>min-width: 0</code>
+      <div class="sample-2-1">
+        <span>Choice</span>
+        <span style="flex-shrink: 0;">:&nbsp;</span>
+        <span class="break-word" style="min-width: 0;">very_very_long_text</span>
+      </div>
     </div>
   </body>
 </html>
