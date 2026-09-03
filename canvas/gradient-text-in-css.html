@@ -20,6 +20,36 @@
     html, body {
       height: 100vh;
     }
+
+    .gradient-stroke-text::before {
+      content: attr(data-text);
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: -2;
+      -webkit-text-stroke: 25px #aaa;
+    }
+    .gradient-stroke-text {
+      font-size: 80px;
+      font-weight: bold;
+      position: relative;
+      display: inline-block;
+      background: linear-gradient(to right, #ff5e62, #a855f7);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      top: 100px;
+      left: 20px;
+    }
+    .gradient-stroke-text::after {
+      content: attr(data-text);
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: -1;
+      -webkit-text-stroke: 12px #fff;
+    }
+
     .text {
       font-family: 'Chicalo';
       position: absolute;
@@ -31,7 +61,7 @@
     .text.shadow {
       text-shadow: 8px 10px 0px #000;
     }
-    .text.stroke{
+    .text.stroke {
       background: linear-gradient(to bottom, #3741AD, #831110);
       -webkit-background-clip: text;
       -webkit-text-stroke: 8px transparent;
@@ -44,10 +74,11 @@
   </style>
 </head>
 <body>
+  <h1 class="gradient-stroke-text" data-text="Gradient Stroke Text">
+    Gradient Stroke Text
+  </h1>
   <div class="text shadow">Gradient - 9876</div>
   <div class="text stroke">Gradient - 9876</div>
   <div class="text fill">Gradient - 9876</div>
-  <script>
-  </script>
 </body>
 </html>
